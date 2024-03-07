@@ -260,7 +260,7 @@ void OpcodeEX9E(WORD opcode) {
 void OpcodeEXA1(WORD opcode) {
     WORD reg = opcode & 0x0F00; reg >>= 8;
     BYTE key = registers[reg];
-    if (input[key]) programCounter += 2;
+    if (!input[key]) programCounter += 2;
 }
 
 void OpcodeFX07(WORD opcode) {
