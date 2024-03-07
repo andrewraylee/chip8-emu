@@ -29,6 +29,7 @@ TIMER delayTimer, soundTimer = 0;
 bool awaitKey = false; // halted for key event?
 bool keyPressed = false; // key pressed after halt?
 BYTE recentKey; // most recent key
+uint speedMultiplier = 3;
 
 
 void InitRectArray(SDL_Rect rects[][32]) {
@@ -488,10 +489,9 @@ int main() {
             }
         }
 
-        // cpu step (I like the pace of 3 steps/frame usually)
+        // cpu step
         ExecOp();
-        ExecOp();
-        ExecOp();
+
 
         // render
 
@@ -510,8 +510,8 @@ int main() {
         // calc run time delay
         Uint64 end = SDL_GetPerformanceCounter();
         float elapsedMS = (float)(end - start) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
-        // 60-ish Hz
-        SDL_Delay(floor(16.666f - elapsedMS));
+        // 60-ish Hz @ 1 speedMultiplier
+        SDL_Delay(floor((16.666f / (float)speedMultiplier) - elapsedMS));
     }
     // cleanup
     SDL_DestroyRenderer(renderer);
