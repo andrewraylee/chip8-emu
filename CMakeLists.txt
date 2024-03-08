@@ -6,5 +6,8 @@ set(CMAKE_CXX_STANDARD 23)
 include_directories(/opt/homebrew/Cellar/sdl2/2.30.0/include/)
 link_directories(/opt/homebrew/Cellar/sdl2/2.30.0/lib)
 
-add_executable(chip8-emu main.cpp)
+add_executable(chip8-emu main.cpp
+        Chip8Core.cpp
+        Chip8Core.h
+        types.h)
 target_link_libraries(chip8-emu sdl2)

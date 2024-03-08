@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <SDL2/SDL.h>
+#include "Chip8Core.h"
+#include "types.h"
 /*
  * Based on VM description as published on Wikipedia:
  * https://en.wikipedia.org/wiki/CHIP-8
@@ -12,8 +14,7 @@
  * and helping me get started with emulation development:
  * http://www.codeslinger.co.uk/index.html
  * */
-typedef unsigned char BYTE;
-typedef unsigned short int WORD;
+
 typedef unsigned char TIMER;
 
 BYTE gameMemory[0xFFF];
@@ -21,14 +22,14 @@ BYTE registers[16];
 WORD addressI;
 WORD programCounter;
 std::vector<WORD> stack;
-BYTE screenData[64][32];
+//BYTE screenData[64][32];
 SDL_Rect rectArray[64][32];
 BYTE input[16];
 
 TIMER delayTimer, soundTimer = 0;
-bool awaitKey = false; // halted for key event?
-bool keyPressed = false; // key pressed after halt?
-BYTE recentKey; // most recent key
+bool awaitKey = false; // halted for keys event?
+bool keyPressed = false; // keys pressed after halt?
+BYTE recentKey; // most recent keys
 uint speedMultiplier = 3;
 
 
@@ -43,10 +44,11 @@ void InitRectArray(SDL_Rect rects[][32]) {
     }
 }
 
-void UpdateRenderedPixels(SDL_Renderer *renderer) {
+void UpdateRenderedPixels(SDL_Renderer *renderer, Chip8Core& chip8Core) {
+    const BYTE (*screenData)[64][32] = chip8Core.GetScreenData();
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 32; j++) {
-            if (screenData[i][j]) {
+            if ((*screenData)[i][j]) {
                 SDL_SetRenderDrawColor(renderer,255,255,255,255);
                 SDL_RenderFillRect(renderer, &rectArray[i][j]);
             }
@@ -69,12 +71,12 @@ void UpdateKeypressRelease(BYTE key) {
 }
 
 
-WORD GetNextOpcode() { // opcode is 2 bytes, stored across 2 addresses from the programCounter location
+/*WORD GetNextOpcode() { // opcode is 2 bytes, stored across 2 addresses from the programCounter location
     WORD res = 0;
     res = gameMemory[programCounter]; // 0xAB
     res <<= 8; // 0xAB00
     res |= gameMemory[programCounter + 1]; //0xABCD
-    programCounter += 2; // next instruction, unless halted for key event (Opcode FX0A)
+    programCounter += 2; // next instruction, unless halted for keys event (Opcode FX0A)
     return res;
 }
 
@@ -94,10 +96,10 @@ void Opcode00EE() {
     stack.pop_back();
 }
 
-/* Call machine code routine at NNN. For the emulator it does nothing and the instruction is ignored.
+*//* Call machine code routine at NNN. For the emulator it does nothing and the instruction is ignored.
  * void Opcode0NNN(WORD opcode) {
  * }
- */
+ *//*
 
 // Jump to NNN.
 void Opcode1NNN(WORD opcode) {
@@ -340,7 +342,7 @@ void ExecOp() {
             switch (opcode & 0x0FFF) {
                 case 0x00E0: Opcode00E0(); break;
                 case 0x00EE: Opcode00EE(); break;
-                default: /*Opcode0NNN(opcode);*/ break;
+                default: *//*Opcode0NNN(opcode);*//* break;
             }
         } break;
         case 0x1000: Opcode1NNN(opcode); break;
@@ -405,12 +407,12 @@ void CPUReset() {
     in = fopen( "/Users/andrew/CLionProjects/chip8-emu/Brix 1990.ch8", "r");
     fread(&gameMemory[0x200], 0xFFF, 1, in);
     fclose(in);
-}
+}*/
 
 
 int main() {
 
-    SDL_Window *window = nullptr;
+    SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Event event;
 
@@ -444,7 +446,7 @@ int main() {
     }
 
     InitRectArray(rectArray);
-    CPUReset();
+    Chip8Core chip8Core;
 
     while (running) {
         Uint64 start = SDL_GetPerformanceCounter();
@@ -490,14 +492,14 @@ int main() {
         }
 
         // cpu step
-        ExecOp();
+        chip8Core.EmulateCycle();
 
 
         // render
 
         SDL_SetRenderDrawColor(renderer,0,0,0,255);
         SDL_RenderClear(renderer);
-        UpdateRenderedPixels(renderer);
+        UpdateRenderedPixels(renderer, chip8Core);
         SDL_RenderPresent(renderer);
 
         // update timers
