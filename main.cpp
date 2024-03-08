@@ -60,14 +60,12 @@ void UpdateRenderedPixels(SDL_Renderer *renderer, Chip8Core& chip8Core) {
     }
 }
 
-void UpdateKeypressDown(BYTE key) {
-    input[key] = 1;
-    recentKey = key;
-    if (awaitKey) keyPressed = true;
+void UpdateKeypressDown(BYTE key, Chip8Core& chip8Core) {
+    chip8Core.SetKeys(key, true);
 }
 
-void UpdateKeypressRelease(BYTE key) {
-    input[key] = 0;
+void UpdateKeypressRelease(BYTE key, Chip8Core& chip8Core) {
+    chip8Core.SetKeys(key, false);
 }
 
 
@@ -454,40 +452,40 @@ int main() {
         while(SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) { running = false; }
             if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.sym == SDLK_1) { UpdateKeypressDown(0x00);}
-                if (event.key.keysym.sym == SDLK_2) { UpdateKeypressDown(0x01);}
-                if (event.key.keysym.sym == SDLK_3) { UpdateKeypressDown(0x02);}
-                if (event.key.keysym.sym == SDLK_4) { UpdateKeypressDown(0x03);}
-                if (event.key.keysym.sym == SDLK_q) { UpdateKeypressDown(0x04);}
-                if (event.key.keysym.sym == SDLK_w) { UpdateKeypressDown(0x05);}
-                if (event.key.keysym.sym == SDLK_e) { UpdateKeypressDown(0x06);}
-                if (event.key.keysym.sym == SDLK_r) { UpdateKeypressDown(0x07);}
-                if (event.key.keysym.sym == SDLK_a) { UpdateKeypressDown(0x08);}
-                if (event.key.keysym.sym == SDLK_s) { UpdateKeypressDown(0x09);}
-                if (event.key.keysym.sym == SDLK_d) { UpdateKeypressDown(0x0A);}
-                if (event.key.keysym.sym == SDLK_f) { UpdateKeypressDown(0x0B);}
-                if (event.key.keysym.sym == SDLK_z) { UpdateKeypressDown(0x0C);}
-                if (event.key.keysym.sym == SDLK_x) { UpdateKeypressDown(0x0D);}
-                if (event.key.keysym.sym == SDLK_c) { UpdateKeypressDown(0x0E);}
-                if (event.key.keysym.sym == SDLK_v) { UpdateKeypressDown(0x0F);}
+                if (event.key.keysym.sym == SDLK_1) { UpdateKeypressDown(0x00, chip8Core);}
+                if (event.key.keysym.sym == SDLK_2) { UpdateKeypressDown(0x01, chip8Core);}
+                if (event.key.keysym.sym == SDLK_3) { UpdateKeypressDown(0x02, chip8Core);}
+                if (event.key.keysym.sym == SDLK_4) { UpdateKeypressDown(0x03, chip8Core);}
+                if (event.key.keysym.sym == SDLK_q) { UpdateKeypressDown(0x04, chip8Core);}
+                if (event.key.keysym.sym == SDLK_w) { UpdateKeypressDown(0x05, chip8Core);}
+                if (event.key.keysym.sym == SDLK_e) { UpdateKeypressDown(0x06, chip8Core);}
+                if (event.key.keysym.sym == SDLK_r) { UpdateKeypressDown(0x07, chip8Core);}
+                if (event.key.keysym.sym == SDLK_a) { UpdateKeypressDown(0x08, chip8Core);}
+                if (event.key.keysym.sym == SDLK_s) { UpdateKeypressDown(0x09, chip8Core);}
+                if (event.key.keysym.sym == SDLK_d) { UpdateKeypressDown(0x0A, chip8Core);}
+                if (event.key.keysym.sym == SDLK_f) { UpdateKeypressDown(0x0B, chip8Core);}
+                if (event.key.keysym.sym == SDLK_z) { UpdateKeypressDown(0x0C, chip8Core);}
+                if (event.key.keysym.sym == SDLK_x) { UpdateKeypressDown(0x0D, chip8Core);}
+                if (event.key.keysym.sym == SDLK_c) { UpdateKeypressDown(0x0E, chip8Core);}
+                if (event.key.keysym.sym == SDLK_v) { UpdateKeypressDown(0x0F, chip8Core);}
             }
             if (event.type == SDL_KEYUP) {
-                if (event.key.keysym.sym == SDLK_1) { UpdateKeypressRelease(0x00);}
-                if (event.key.keysym.sym == SDLK_2) { UpdateKeypressRelease(0x01);}
-                if (event.key.keysym.sym == SDLK_3) { UpdateKeypressRelease(0x02);}
-                if (event.key.keysym.sym == SDLK_4) { UpdateKeypressRelease(0x03);}
-                if (event.key.keysym.sym == SDLK_q) { UpdateKeypressRelease(0x04);}
-                if (event.key.keysym.sym == SDLK_w) { UpdateKeypressRelease(0x05);}
-                if (event.key.keysym.sym == SDLK_e) { UpdateKeypressRelease(0x06);}
-                if (event.key.keysym.sym == SDLK_r) { UpdateKeypressRelease(0x07);}
-                if (event.key.keysym.sym == SDLK_a) { UpdateKeypressRelease(0x08);}
-                if (event.key.keysym.sym == SDLK_s) { UpdateKeypressRelease(0x09);}
-                if (event.key.keysym.sym == SDLK_d) { UpdateKeypressRelease(0x0A);}
-                if (event.key.keysym.sym == SDLK_f) { UpdateKeypressRelease(0x0B);}
-                if (event.key.keysym.sym == SDLK_z) { UpdateKeypressRelease(0x0C);}
-                if (event.key.keysym.sym == SDLK_x) { UpdateKeypressRelease(0x0D);}
-                if (event.key.keysym.sym == SDLK_c) { UpdateKeypressRelease(0x0E);}
-                if (event.key.keysym.sym == SDLK_v) { UpdateKeypressRelease(0x0F);}
+                if (event.key.keysym.sym == SDLK_1) { UpdateKeypressRelease(0x00, chip8Core);}
+                if (event.key.keysym.sym == SDLK_2) { UpdateKeypressRelease(0x01, chip8Core);}
+                if (event.key.keysym.sym == SDLK_3) { UpdateKeypressRelease(0x02, chip8Core);}
+                if (event.key.keysym.sym == SDLK_4) { UpdateKeypressRelease(0x03, chip8Core);}
+                if (event.key.keysym.sym == SDLK_q) { UpdateKeypressRelease(0x04, chip8Core);}
+                if (event.key.keysym.sym == SDLK_w) { UpdateKeypressRelease(0x05, chip8Core);}
+                if (event.key.keysym.sym == SDLK_e) { UpdateKeypressRelease(0x06, chip8Core);}
+                if (event.key.keysym.sym == SDLK_r) { UpdateKeypressRelease(0x07, chip8Core);}
+                if (event.key.keysym.sym == SDLK_a) { UpdateKeypressRelease(0x08, chip8Core);}
+                if (event.key.keysym.sym == SDLK_s) { UpdateKeypressRelease(0x09, chip8Core);}
+                if (event.key.keysym.sym == SDLK_d) { UpdateKeypressRelease(0x0A, chip8Core);}
+                if (event.key.keysym.sym == SDLK_f) { UpdateKeypressRelease(0x0B, chip8Core);}
+                if (event.key.keysym.sym == SDLK_z) { UpdateKeypressRelease(0x0C, chip8Core);}
+                if (event.key.keysym.sym == SDLK_x) { UpdateKeypressRelease(0x0D, chip8Core);}
+                if (event.key.keysym.sym == SDLK_c) { UpdateKeypressRelease(0x0E, chip8Core);}
+                if (event.key.keysym.sym == SDLK_v) { UpdateKeypressRelease(0x0F, chip8Core);}
             }
         }
 

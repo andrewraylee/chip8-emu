@@ -22,7 +22,7 @@ void Chip8Core::Initialize() {
 
     srand(time(nullptr)); // seed rng | NOLINT(*-msc51-cpp) [this is good enough in this scope]
 
-    LoadGame((char *)"/Users/andrew/CLionProjects/chip8-emu/Brix 1990.ch8"); // load game
+    LoadGame((char *)"/Users/andrew/CLionProjects/chip8-emu/Test Opcode.ch8"); // load game
 }
 
 void Chip8Core::LoadGame(char *gamePath) {
@@ -36,6 +36,10 @@ void Chip8Core::LoadGame(char *gamePath) {
 void Chip8Core::EmulateCycle() {
     GetNextOpcode();
     ExecuteOpcode();
+    DecrementTimers();
+    std::cout << "PC: " << std::hex << pc << std::endl;
+    std::cout << "I: " << std::hex << I << std::endl;
+    std::cout << "opcode: " << std::hex << opcode << std::endl;
 }
 
 void Chip8Core::SetKeys(BYTE key, bool state) {
