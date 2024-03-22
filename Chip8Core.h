@@ -14,7 +14,7 @@ public:
     void EmulateCycle();
     void SetKeys(BYTE key, bool state);
     void DecrementTimers();
-    bool ShouldPlaySound() const;
+    [[nodiscard]] bool ShouldPlaySound() const;
     BYTE (*GetScreenData())[64][32];
 
 private:
@@ -41,7 +41,7 @@ private:
                     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
             };
 
-    BYTE memory[MEMORY_SIZE]{}; // 4k memory
+    BYTE memory[MEMORY_SIZE]{}; // 4096
     BYTE V[REGISTER_COUNT]{}; // Registers V0-VF
     WORD I{}; // Index
     WORD pc{}; // Program counter
@@ -52,11 +52,11 @@ private:
     BYTE soundTimer{};
     WORD opcode{};
 
-    void GetNextOpcode();
-    void ExecuteOpcode();
-
     void LoadFontSet();
     void ClearScreen();
+
+    void GetNextOpcode();
+    void ExecuteOpcode();
 
     void Opcode00E0();
     void Opcode00EE();

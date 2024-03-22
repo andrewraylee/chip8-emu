@@ -22,7 +22,7 @@ void Chip8Core::Initialize() {
 
     srand(time(nullptr)); // seed rng | NOLINT(*-msc51-cpp) [this is good enough in this scope]
 
-    LoadGame((char *)"/Users/andrew/CLionProjects/chip8-emu/Test Opcode.ch8"); // load game
+    LoadGame((char *)"/Users/andrew/CLionProjects/chip8-emu/Chip8 Test Suite.quirks.ch8"); // load game
 }
 
 void Chip8Core::LoadGame(char *gamePath) {
@@ -36,10 +36,6 @@ void Chip8Core::LoadGame(char *gamePath) {
 void Chip8Core::EmulateCycle() {
     GetNextOpcode();
     ExecuteOpcode();
-    DecrementTimers();
-    std::cout << "PC: " << std::hex << pc << std::endl;
-    std::cout << "I: " << std::hex << I << std::endl;
-    std::cout << "opcode: " << std::hex << opcode << std::endl;
 }
 
 void Chip8Core::SetKeys(BYTE key, bool state) {
@@ -56,8 +52,18 @@ bool Chip8Core::ShouldPlaySound() const {
     return soundTimer > 0;
 }
 
-BYTE (*Chip8Core::GetScreenData())[64][32] { // this is ***wild*** after months of JS
+BYTE (*Chip8Core::GetScreenData())[64][32] {
     return &screenData;
+}
+
+void Chip8Core::LoadFontSet() {
+    for (int i = 0; i < 80; ++i) {
+        memory[i] = chip8FontSet[i];
+    }
+}
+
+void Chip8Core::ClearScreen() {
+    memset(screenData, 0, sizeof(screenData));
 }
 
 void Chip8Core::GetNextOpcode() {
@@ -125,16 +131,6 @@ void Chip8Core::ExecuteOpcode() {
         break;
         default: ErrorInvalidOp(opcode); break;
     }
-}
-
-void Chip8Core::LoadFontSet() {
-    for (int i = 0; i < 80; ++i) {
-        memory[i] = chip8FontSet[i];
-    }
-}
-
-void Chip8Core::ClearScreen() {
-    memset(screenData, 0, sizeof(screenData));
 }
 
 void Chip8Core::Opcode00E0() {
@@ -218,34 +214,45 @@ void Chip8Core::Opcode8XY4(WORD op) {
     WORD regX = (op & 0x0F00) >> 8;
     WORD regY = (op & 0x00F0) >> 4;
     WORD result = V[regX] + V[regY];
-    V[0xF] = (result > 0xFF) ? 1 : 0; // carry (Love to use a good ol' *squints eyes* tyranny operator)
     V[regX] = result & 0xFF;
+    V[0xF] = (result > 0xFF) ? 1 : 0; // carry = 1 if overflow
 }
 
 void Chip8Core::Opcode8XY5(WORD op) {
     WORD regX = (op & 0x0F00) >> 8;
     WORD regY = (op & 0x00F0) >> 4;
-    V[0xF] = (V[regX] > V[regY]) ? 1 : 0;
-    V[regX] -= V[regY];
+    BYTE x = V[regX];
+    BYTE y = V[regY];
+    WORD result = x - y;
+    V[regX] = result;
+    V[0xF] = (x >= y) ? 1 : 0; // 1 if NO BORROW, 0 if borrow
 }
 
 void Chip8Core::Opcode8XY6(WORD op) {
     WORD regX = (op & 0x0F00) >> 8;
-    V[0xF] = V[regX] & 0x1;
-    V[regX] >>= 1;
+    WORD regY = (op & 0x00F0) >> 4;
+    BYTE y = V[regY];
+    V[regY] = y >> 1;
+    V[regX] = V[regY];
+    V[0xF] = y & 0x1;
 }
 
 void Chip8Core::Opcode8XY7(WORD op) {
     WORD regX = (op & 0x0F00) >> 8;
     WORD regY = (op & 0x00F0) >> 4;
-    V[0xF] = (V[regY] > V[regX]) ? 1 : 0;
-    V[regX] = V[regY] - V[regX];
+    BYTE x = V[regX];
+    BYTE y = V[regY];
+    V[regX] = y - x;
+    V[0xF] = (y >= x) ? 1 : 0; // 1 if no borrow, 0 if borrow
 }
 
 void Chip8Core::Opcode8XYE(WORD op) {
     WORD regX = (op & 0x0F00) >> 8;
-    V[0xF] = (V[regX] >> 7) & 0x1;
-    V[regX] <<= 1;
+    WORD regY = (op & 0x00F0) >> 4;
+    BYTE y = V[regY];
+    V[regY] = y << 1;
+    V[regX] = V[regY];
+    V[0xF] = (y >> 7) & 0x1;
 }
 
 void Chip8Core::Opcode9XY0(WORD op) {
