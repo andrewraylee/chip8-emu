@@ -7,7 +7,6 @@
 class Chip8Core {
 public:
     Chip8Core();
-    ~Chip8Core();
 
     void Initialize();
     void LoadGame(char *gamePath);

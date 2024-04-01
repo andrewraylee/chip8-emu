@@ -2,6 +2,7 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include "Chip8Core.h"
+#include "Chip8Display.h"
 #include "types.h"
 /*
  * Based on VM description as published on Wikipedia:
@@ -15,38 +16,8 @@
  * http://www.codeslinger.co.uk/index.html
  * */
 
-
-SDL_Rect rectArray[64][32];
-
 uint speedMultiplier = 5;
 uint cycleCount = 0;
-
-void InitRectArray(SDL_Rect rects[][32]) {
-    for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < 32; j++) {
-            rects[i][j].x = i * 10;
-            rects[i][j].y = j * 10;
-            rects[i][j].w = 10;
-            rects[i][j].h = 10;
-        }
-    }
-}
-
-void UpdateRenderedPixels(SDL_Renderer *renderer, Chip8Core& chip8Core) {
-    const BYTE (*screenData)[64][32] = chip8Core.GetScreenData();
-    for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < 32; j++) {
-            if ((*screenData)[i][j]) {
-                SDL_SetRenderDrawColor(renderer,255,255,255,255);
-                SDL_RenderFillRect(renderer, &rectArray[i][j]);
-            }
-            else {
-                SDL_SetRenderDrawColor(renderer,0,0,0,255);
-                SDL_RenderFillRect(renderer, &rectArray[i][j]);
-            }
-        }
-    }
-}
 
 void UpdateKeypressDown(BYTE key, Chip8Core& chip8Core) {
     chip8Core.SetKeys(key, true);
@@ -57,9 +28,6 @@ void UpdateKeypressRelease(BYTE key, Chip8Core& chip8Core) {
 }
 
 int main() {
-
-    SDL_Window *window;
-    SDL_Renderer *renderer;
     SDL_Event event;
 
     bool running = true;
@@ -71,28 +39,9 @@ int main() {
         std::cout << "SDL init success\n";
     }
 
-    window = SDL_CreateWindow(
-            "chip-8 emu",
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            640,
-            320,
-            SDL_WINDOW_SHOWN |
-            SDL_WINDOW_OPENGL
-            );
-    if (window == nullptr) {
-        std::cout << "Window creation failed: " << SDL_GetError();
-        return 1;
-    }
-
-    renderer = SDL_CreateRenderer(window, -1, 0);
-    if (renderer == nullptr) {
-        std::cout << "Renderer creation failed: " << SDL_GetError();
-        return 1;
-    }
-
-    InitRectArray(rectArray);
     Chip8Core chip8Core;
+
+    Chip8Display::Initialize();
 
     while (running) {
         Uint64 start = SDL_GetPerformanceCounter();
@@ -144,13 +93,8 @@ int main() {
             cycleCount = 0;
         }
 
-
         // render
-
-        SDL_SetRenderDrawColor(renderer,0,0,0,255);
-        SDL_RenderClear(renderer);
-        UpdateRenderedPixels(renderer, chip8Core);
-        SDL_RenderPresent(renderer);
+        Chip8Display::RenderFrame(chip8Core);
 
         // play sound
         if (chip8Core.ShouldPlaySound()) {
@@ -164,8 +108,6 @@ int main() {
         SDL_Delay(floor((16.666f / (float)speedMultiplier) - elapsedMS));
     }
     // cleanup
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
 }

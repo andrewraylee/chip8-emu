@@ -6,8 +6,6 @@ Chip8Core::Chip8Core() {
     Initialize();
 }
 
-Chip8Core::~Chip8Core() = default;
-
 void Chip8Core::Initialize() {
     I = 0; // reset index
     pc = 0x200; // program will be initialized at 0x200
