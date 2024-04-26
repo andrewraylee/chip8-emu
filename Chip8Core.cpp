@@ -20,7 +20,7 @@ void Chip8Core::Initialize() {
 
     srand(time(nullptr)); // seed rng | NOLINT(*-msc51-cpp) [this is good enough in this scope]
 
-    LoadGame((char *)"/Users/andrew/CLionProjects/chip8-emu/Chip8 Test Suite.quirks.ch8"); // load game
+    LoadGame((char *)"/path/to/ROM.ch8"); // load game
 }
 
 void Chip8Core::LoadGame(char *gamePath) {

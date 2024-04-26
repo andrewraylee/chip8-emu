@@ -1,20 +1,7 @@
 #include <iostream>
-#include <vector>
 #include <SDL2/SDL.h>
 #include "Chip8Core.h"
 #include "Chip8Display.h"
-#include "types.h"
-/*
- * Based on VM description as published on Wikipedia:
- * https://en.wikipedia.org/wiki/CHIP-8
- *
- * And Cowgod's technical reference:
- * http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
- *
- * With special thanks to the author of codeslinger.co.uk for helpful insight where I needed it
- * and helping me get started with emulation development:
- * http://www.codeslinger.co.uk/index.html
- * */
 
 uint speedMultiplier = 5;
 uint cycleCount = 0;
